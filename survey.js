@@ -43,10 +43,9 @@ sliders.forEach(id => {
   slider.step = 1;
 
   slider.addEventListener("input", ()=>{
-    // Remove any slowdown, allow free drag beyond 100 or below 0
-    expandRange(slider);
-    updateDisplay(id);
-    logResponse();
+    expandRange(slider);       // allow free dragging beyond 0-100
+    updateDisplay(id);         // update bubble
+    logResponse();             // send to Supabase
   });
 
   updateDisplay(id);
