@@ -5,7 +5,6 @@ let supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const session_id = crypto.randomUUID();
 const sliders = ["comfort", "vulnerability", "punctuality"];
-const SENSITIVITY = 0.05; // very slow, precise movement
 
 // Update bubble above slider
 function updateDisplay(id){
@@ -46,12 +45,11 @@ function adjust(id, step){
   logResponse();
 }
 
-// Initialize sliders with drag support
+// Initialize sliders with adaptive drag
 sliders.forEach(id=>{
   const slider = document.getElementById(id);
   slider.step = 1;
 
-  // drag logic
   let dragging = false;
   let startX = 0;
   let startValue = 0;
@@ -67,10 +65,17 @@ sliders.forEach(id=>{
 
     function moveHandler(ev){
       const currentX = ev.type.includes("touch") ? ev.touches[0].clientX : ev.clientX;
-      const dx = currentX - startX;
+      let dx = currentX - startX;
 
-      // Apply slow sensitivity
-      const newValue = startValue + dx * SENSITIVITY;
+      let newValue = startValue + dx;
+
+      // Apply slower change only beyond edges
+      if(newValue > 100){
+        newValue = startValue + dx * 0.1; // 10% of drag beyond 100
+      } else if(newValue < 0){
+        newValue = startValue + dx * 0.1; // 10% of drag below 0
+      }
+
       slider.value = newValue;
       expandRange(slider);
       updateDisplay(id);
