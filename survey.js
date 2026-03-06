@@ -7,8 +7,6 @@ const session_id=crypto.randomUUID();
 
 const sliders=["comfort","vulnerability","punctuality"];
 
-const sensitivity=0.2; // 5x slower movement
-
 
 
 function updateDisplay(id){
@@ -16,12 +14,34 @@ function updateDisplay(id){
 const slider=document.getElementById(id);
 const bubble=document.getElementById(id+"_value");
 
-const value=parseFloat(slider.dataset.realValue);
+const value=parseFloat(slider.value);
+const min=parseFloat(slider.min);
+const max=parseFloat(slider.max);
 
-const percent=slider.value;
+const percent=(value-min)/(max-min)*100;
 
 bubble.innerText=Math.round(value);
 bubble.style.left=percent+"%";
+
+}
+
+
+
+function updateMarkers(id){
+
+const slider=document.getElementById(id);
+
+const zero=document.getElementById(id+"_zero");
+const hundred=document.getElementById(id+"_hundred");
+
+const min=parseFloat(slider.min);
+const max=parseFloat(slider.max);
+
+const zeroPercent=(0-min)/(max-min)*100;
+const hundredPercent=(100-min)/(max-min)*100;
+
+zero.style.left=zeroPercent+"%";
+hundred.style.left=hundredPercent+"%";
 
 }
 
@@ -31,15 +51,43 @@ function adjust(id,step){
 
 const slider=document.getElementById(id);
 
-let value=parseFloat(slider.dataset.realValue);
+slider.value=parseFloat(slider.value)+step;
 
-value+=step;
-
-slider.dataset.realValue=value;
+expandRange(slider);
 
 updateDisplay(id);
+updateMarkers(id);
 
 logResponse();
+
+}
+
+
+
+function expandRange(slider){
+
+let value=parseFloat(slider.value);
+let min=parseFloat(slider.min);
+let max=parseFloat(slider.max);
+
+/* very slow expansion (10x slower) */
+
+const threshold=2;
+
+if(value>=max-threshold){
+
+max=max+5;
+
+}
+
+if(value<=min+threshold){
+
+min=min-5;
+
+}
+
+slider.min=min;
+slider.max=max;
 
 }
 
@@ -49,40 +97,21 @@ sliders.forEach(id=>{
 
 const slider=document.getElementById(id);
 
-slider.min=0;
-slider.max=100;
-slider.value=50;
-
-slider.dataset.realValue=50;
-
-let last=50;
+slider.step=1;
 
 slider.addEventListener("input",()=>{
 
-let current=parseFloat(slider.value);
-
-let movement=current-last;
-
-/* slow sensitivity */
-
-let real=parseFloat(slider.dataset.realValue);
-
-real+=movement*20*sensitivity;
-
-slider.dataset.realValue=real;
-
-/* keep thumb centered */
-
-slider.value=50;
-last=50;
+expandRange(slider);
 
 updateDisplay(id);
+updateMarkers(id);
 
 logResponse();
 
 });
 
 updateDisplay(id);
+updateMarkers(id);
 
 });
 
@@ -94,13 +123,13 @@ const data={
 
 session_id:session_id,
 
-comfort_value:parseFloat(document.getElementById("comfort").dataset.realValue),
+comfort_value:parseFloat(document.getElementById("comfort").value),
 comfort_id:"comfort",
 
-vulnerability_value:parseFloat(document.getElementById("vulnerability").dataset.realValue),
+vulnerability_value:parseFloat(document.getElementById("vulnerability").value),
 vulnerability_id:"vulnerability",
 
-punctuality_value:parseFloat(document.getElementById("punctuality").dataset.realValue),
+punctuality_value:parseFloat(document.getElementById("punctuality").value),
 punctuality_id:"punctuality"
 
 };
@@ -110,7 +139,9 @@ const {error}=await supa
 .insert(data);
 
 if(error){
+
 console.error("Supabase insert error:",error);
+
 }
 
 }
