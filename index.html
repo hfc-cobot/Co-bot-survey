@@ -47,21 +47,28 @@ input[type="range"] {
   width: 100%;
 }
 
+/* floating value above slider thumb */
+
+.value-bubble {
+  position: absolute;
+  top: -25px;
+  transform: translateX(-50%);
+  background: #0077cc;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  pointer-events: none;
+}
+
 .marker {
   position: absolute;
-  top: 30px;
+  top: 25px;
   font-size: 14px;
   font-weight: bold;
   color: #0077cc;
   transform: translateX(-50%);
-  pointer-events: none;
-}
-
-.value-display {
-  width: 60px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 18px;
 }
 </style>
 </head>
@@ -73,55 +80,57 @@ input[type="range"] {
 <!-- COMFORT -->
 <div class="question">
 <p>Comfort – I am at ease while the vehicle is en route.</p>
+
 <div class="scale-container">
 <button onclick="adjust('comfort', -1)">−</button>
 
 <div class="scale-wrapper">
 <input type="range" id="comfort" min="0" max="100" value="50">
+<div class="value-bubble" id="comfort_value"></div>
 <div class="marker" id="comfort_zero">0</div>
 <div class="marker" id="comfort_hundred">100</div>
 </div>
 
 <button onclick="adjust('comfort', 1)">+</button>
-<div class="value-display" id="comfort_value">50</div>
 </div>
 </div>
 
 <!-- VULNERABILITY -->
 <div class="question">
 <p>Vulnerability – I feel that the vehicle will take me safely.</p>
+
 <div class="scale-container">
 <button onclick="adjust('vulnerability', -1)">−</button>
 
 <div class="scale-wrapper">
 <input type="range" id="vulnerability" min="0" max="100" value="50">
+<div class="value-bubble" id="vulnerability_value"></div>
 <div class="marker" id="vulnerability_zero">0</div>
 <div class="marker" id="vulnerability_hundred">100</div>
 </div>
 
 <button onclick="adjust('vulnerability', 1)">+</button>
-<div class="value-display" id="vulnerability_value">50</div>
 </div>
 </div>
 
 <!-- PUNCTUALITY -->
 <div class="question">
 <p>Punctuality – I feel that the vehicle will take me on time.</p>
+
 <div class="scale-container">
 <button onclick="adjust('punctuality', -1)">−</button>
 
 <div class="scale-wrapper">
 <input type="range" id="punctuality" min="0" max="100" value="50">
+<div class="value-bubble" id="punctuality_value"></div>
 <div class="marker" id="punctuality_zero">0</div>
 <div class="marker" id="punctuality_hundred">100</div>
 </div>
 
 <button onclick="adjust('punctuality', 1)">+</button>
-<div class="value-display" id="punctuality_value">50</div>
 </div>
 </div>
 
-<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="survey.js"></script>
 
