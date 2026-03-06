@@ -4,49 +4,42 @@ let supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const session_id = crypto.randomUUID();
 const sliders = ["comfort", "vulnerability", "punctuality"];
+const EDGE_SENSITIVITY = 0.05; // slow movement beyond 100 or below 0
+const sliderValues = {comfort:50, vulnerability:50, punctuality:50};
 
 function updateDisplay(id){
   const slider = document.getElementById(id);
   const bubble = document.getElementById(id+"_value");
-  const value = parseFloat(slider.value);
   const min = parseFloat(slider.min);
   const max = parseFloat(slider.max);
-  const percent = (value - min)/(max - min)*100;
+  const value = sliderValues[id];
+
+  // bubble percent relative to 0-100 scale visually
+  let percent = Math.min(Math.max((value - min)/(max - min)*100,0),100);
   bubble.innerText = Math.round(value);
   bubble.style.left = percent + "%";
 }
 
-// Allow dynamic expansion beyond 0-100 internally without changing visual scale
-function expandRange(slider){
-  let value = parseFloat(slider.value);
-  let min = parseFloat(slider.min);
-  let max = parseFloat(slider.max);
-  const threshold = 5;
-
-  if(value >= max - threshold){ max += 5; }
-  if(value <= min + threshold){ min -= 5; }
-
-  slider.min = min;
-  slider.max = max;
-}
-
 function adjust(id, step){
-  const slider = document.getElementById(id);
-  slider.value = parseFloat(slider.value) + step;
-  expandRange(slider);
+  sliderValues[id] += step;
   updateDisplay(id);
   logResponse();
 }
 
-// Initialize sliders
-sliders.forEach(id => {
+sliders.forEach(id=>{
   const slider = document.getElementById(id);
   slider.step = 1;
 
-  slider.addEventListener("input", ()=>{
-    expandRange(slider);       // allow free drag beyond 0-100 internally
-    updateDisplay(id);         // bubble follows thumb
-    logResponse();             // log to Supabase
+  slider.addEventListener("input", e=>{
+    const rawValue = parseFloat(e.target.value);
+    let delta = rawValue - 50;
+
+    if(delta > 0) delta *= EDGE_SENSITIVITY;    // slow beyond 100
+    else if(delta < -50) delta *= EDGE_SENSITIVITY; // slow below 0
+
+    sliderValues[id] = 50 + delta;
+    updateDisplay(id);
+    logResponse();
   });
 
   updateDisplay(id);
@@ -55,11 +48,11 @@ sliders.forEach(id => {
 async function logResponse(){
   const data = {
     session_id: session_id,
-    comfort_value: parseFloat(document.getElementById("comfort").value),
+    comfort_value: sliderValues.comfort,
     comfort_id: "comfort",
-    vulnerability_value: parseFloat(document.getElementById("vulnerability").value),
+    vulnerability_value: sliderValues.vulnerability,
     vulnerability_id: "vulnerability",
-    punctuality_value: parseFloat(document.getElementById("punctuality").value),
+    punctuality_value: sliderValues.punctuality,
     punctuality_id: "punctuality"
   };
 
