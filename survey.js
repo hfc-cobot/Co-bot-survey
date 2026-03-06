@@ -5,7 +5,7 @@ let supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const session_id = crypto.randomUUID();
 const sliders = ["comfort", "vulnerability", "punctuality"];
-const SENSITIVITY = 0.01; // very slow, precise movement
+const SENSITIVITY = 0.04; // very slow, precise movement
 
 // Update bubble above slider
 function updateDisplay(id){
