@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <title>Vehicle Experience Survey</title>
-
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -22,20 +21,29 @@ h2 { margin-bottom: 30px; }
   gap: 10px;
 }
 
-button {
+.button {
   width: 40px;
   height: 40px;
   font-size: 18px;
   cursor: pointer;
 }
 
-.scale-wrapper {
+.slider-track {
   position: relative;
   flex: 1;
+  height: 6px;
+  background: #ddd;
+  border-radius: 3px;
 }
 
-input[type=range] {
-  width: 100%;
+.slider-thumb {
+  position: absolute;
+  top: -7px;
+  width: 20px;
+  height: 20px;
+  background: #1e73be;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
 .value-bubble {
@@ -53,7 +61,7 @@ input[type=range] {
 
 .marker {
   position: absolute;
-  top: 25px;
+  top: 10px;
   font-size: 13px;
   font-weight: bold;
   color: #0077cc;
@@ -69,14 +77,14 @@ input[type=range] {
 <div class="question">
 <p>Comfort – I am at ease while the vehicle is en route.</p>
 <div class="scale-container">
-<button onclick="adjust('comfort',-1)">−</button>
-<div class="scale-wrapper">
-<input type="range" id="comfort" min="0" max="100" value="50">
-<div class="value-bubble" id="comfort_value"></div>
-<div class="marker" id="comfort_zero">0</div>
-<div class="marker" id="comfort_hundred">100</div>
+<button class="button" onclick="adjust('comfort', -1)">−</button>
+<div class="slider-track" id="comfort_track">
+  <div class="slider-thumb" id="comfort_thumb"></div>
+  <div class="value-bubble" id="comfort_bubble"></div>
+  <div class="marker" style="left:0%">0</div>
+  <div class="marker" style="left:100%">100</div>
 </div>
-<button onclick="adjust('comfort',1)">+</button>
+<button class="button" onclick="adjust('comfort', 1)">+</button>
 </div>
 </div>
 
@@ -84,14 +92,14 @@ input[type=range] {
 <div class="question">
 <p>Vulnerability – I feel that the vehicle will take me safely.</p>
 <div class="scale-container">
-<button onclick="adjust('vulnerability',-1)">−</button>
-<div class="scale-wrapper">
-<input type="range" id="vulnerability" min="0" max="100" value="50">
-<div class="value-bubble" id="vulnerability_value"></div>
-<div class="marker" id="vulnerability_zero">0</div>
-<div class="marker" id="vulnerability_hundred">100</div>
+<button class="button" onclick="adjust('vulnerability', -1)">−</button>
+<div class="slider-track" id="vulnerability_track">
+  <div class="slider-thumb" id="vulnerability_thumb"></div>
+  <div class="value-bubble" id="vulnerability_bubble"></div>
+  <div class="marker" style="left:0%">0</div>
+  <div class="marker" style="left:100%">100</div>
 </div>
-<button onclick="adjust('vulnerability',1)">+</button>
+<button class="button" onclick="adjust('vulnerability', 1)">+</button>
 </div>
 </div>
 
@@ -99,14 +107,14 @@ input[type=range] {
 <div class="question">
 <p>Punctuality – I feel that the vehicle will take me on time.</p>
 <div class="scale-container">
-<button onclick="adjust('punctuality',-1)">−</button>
-<div class="scale-wrapper">
-<input type="range" id="punctuality" min="0" max="100" value="50">
-<div class="value-bubble" id="punctuality_value"></div>
-<div class="marker" id="punctuality_zero">0</div>
-<div class="marker" id="punctuality_hundred">100</div>
+<button class="button" onclick="adjust('punctuality', -1)">−</button>
+<div class="slider-track" id="punctuality_track">
+  <div class="slider-thumb" id="punctuality_thumb"></div>
+  <div class="value-bubble" id="punctuality_bubble"></div>
+  <div class="marker" style="left:0%">0</div>
+  <div class="marker" style="left:100%">100</div>
 </div>
-<button onclick="adjust('punctuality',1)">+</button>
+<button class="button" onclick="adjust('punctuality', 1)">+</button>
 </div>
 </div>
 
