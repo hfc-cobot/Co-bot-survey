@@ -5,62 +5,62 @@
 <title>Vehicle Experience Survey</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 0 20px;
+
+body{
+font-family:Arial,sans-serif;
+max-width:800px;
+margin:40px auto;
+padding:0 20px;
 }
 
-h2 { margin-bottom: 30px; }
-
-.question { margin-bottom: 70px; }
-
-.question p { font-size: 18px; margin-bottom: 15px; }
-
-.scale-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.question{
+margin-bottom:70px;
 }
 
-button {
-  width: 40px;
-  height: 40px;
-  font-size: 18px;
-  cursor: pointer;
+.scale-container{
+display:flex;
+align-items:center;
+gap:10px;
 }
 
-.scale-wrapper {
-  position: relative;
-  flex: 1;
+button{
+width:40px;
+height:40px;
+font-size:18px;
+cursor:pointer;
 }
 
-input[type=range] {
-  width: 100%;
+.scale-wrapper{
+position:relative;
+flex:1;
 }
 
-.value-bubble {
-  position: absolute;
-  top: -28px;
-  transform: translateX(-50%);
-  background: #1e73be;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: bold;
-  pointer-events: none;
+input[type=range]{
+width:100%;
 }
 
-.marker {
-  position: absolute;
-  top: 25px;
-  font-size: 13px;
-  font-weight: bold;
-  color: #0077cc;
-  transform: translateX(-50%);
+.value-bubble{
+position:absolute;
+top:-28px;
+transform:translateX(-50%);
+background:#1e73be;
+color:white;
+padding:4px 8px;
+border-radius:6px;
+font-size:14px;
+font-weight:bold;
+pointer-events:none;
 }
+
+.marker{
+position:absolute;
+top:25px;
+font-size:13px;
+font-weight:bold;
+color:#0077cc;
+transform:translateX(-50%);
+}
+
 </style>
 </head>
 
@@ -68,47 +68,55 @@ input[type=range] {
 
 <h2>Vehicle Experience Survey</h2>
 
-<!-- COMFORT -->
 <div class="question">
 <p>Comfort – I am at ease while the vehicle is en route.</p>
+
 <div class="scale-container">
 <button onclick="adjust('comfort',-1)">−</button>
+
 <div class="scale-wrapper">
 <input type="range" id="comfort" min="0" max="100" value="50">
 <div class="value-bubble" id="comfort_value"></div>
 <div class="marker" id="comfort_zero">0</div>
 <div class="marker" id="comfort_hundred">100</div>
 </div>
+
 <button onclick="adjust('comfort',1)">+</button>
 </div>
 </div>
 
-<!-- VULNERABILITY -->
+
 <div class="question">
 <p>Vulnerability – I feel that the vehicle will take me safely.</p>
+
 <div class="scale-container">
 <button onclick="adjust('vulnerability',-1)">−</button>
+
 <div class="scale-wrapper">
 <input type="range" id="vulnerability" min="0" max="100" value="50">
 <div class="value-bubble" id="vulnerability_value"></div>
 <div class="marker" id="vulnerability_zero">0</div>
 <div class="marker" id="vulnerability_hundred">100</div>
 </div>
+
 <button onclick="adjust('vulnerability',1)">+</button>
 </div>
 </div>
 
-<!-- PUNCTUALITY -->
+
 <div class="question">
 <p>Punctuality – I feel that the vehicle will take me on time.</p>
+
 <div class="scale-container">
 <button onclick="adjust('punctuality',-1)">−</button>
+
 <div class="scale-wrapper">
 <input type="range" id="punctuality" min="0" max="100" value="50">
 <div class="value-bubble" id="punctuality_value"></div>
 <div class="marker" id="punctuality_zero">0</div>
 <div class="marker" id="punctuality_hundred">100</div>
 </div>
+
 <button onclick="adjust('punctuality',1)">+</button>
 </div>
 </div>
