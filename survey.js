@@ -7,12 +7,27 @@ const session_id = crypto.randomUUID();
 
 const sliders = ["comfort", "vulnerability", "punctuality"];
 
+
+
 function updateDisplay(id) {
+
   const slider = document.getElementById(id);
-  document.getElementById(id + "_value").innerText = slider.value;
+  const bubble = document.getElementById(id + "_value");
+
+  const value = parseInt(slider.value);
+  const min = parseInt(slider.min);
+  const max = parseInt(slider.max);
+
+  const percent = (value - min) / (max - min) * 100;
+
+  bubble.innerText = value;
+  bubble.style.left = percent + "%";
 }
 
+
+
 function updateMarkers(id) {
+
   const slider = document.getElementById(id);
   const zeroMarker = document.getElementById(id + "_zero");
   const hundredMarker = document.getElementById(id + "_hundred");
@@ -28,42 +43,54 @@ function updateMarkers(id) {
   hundredMarker.style.left = hundredPercent + "%";
 }
 
+
+
 function adjust(id, step) {
+
   const slider = document.getElementById(id);
   let value = parseInt(slider.value) + step;
 
   if (value < parseInt(slider.min)) {
-    slider.min = value;
+    slider.min = value - 5;
   }
 
   if (value > parseInt(slider.max)) {
-    slider.max = value;
+    slider.max = value + 5;
   }
 
   slider.value = value;
 
   updateDisplay(id);
   updateMarkers(id);
+
   logResponse();
 }
 
+
+
 sliders.forEach(id => {
+
   const slider = document.getElementById(id);
 
   slider.addEventListener("input", () => {
 
     const value = parseInt(slider.value);
+    const min = parseInt(slider.min);
+    const max = parseInt(slider.max);
 
-    if (value <= parseInt(slider.min)) {
-      slider.min = value - 10;
+    /* smoother expansion (lower sensitivity) */
+
+    if (value <= min + 2) {
+      slider.min = min - 5;
     }
 
-    if (value >= parseInt(slider.max)) {
-      slider.max = value + 10;
+    if (value >= max - 2) {
+      slider.max = max + 5;
     }
 
     updateDisplay(id);
     updateMarkers(id);
+
     logResponse();
   });
 
@@ -71,7 +98,10 @@ sliders.forEach(id => {
   updateMarkers(id);
 });
 
+
+
 async function logResponse() {
+
   const data = {
     session_id: session_id,
 
