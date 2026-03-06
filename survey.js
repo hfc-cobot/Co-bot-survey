@@ -1,13 +1,13 @@
-const SUPABASE_URL="https://zuzufciobmzjfcaujpet.supabase.co";
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1enVmY2lvYm16amZjYXVqcGV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3OTg3ODAsImV4cCI6MjA4NTM3NDc4MH0.Md56UoBCOUjOTu5qEvJsMYG0TZvgAFmWU6jPgTgTAn4"; // replace with your key
+const SUPABASE_URL = "https://zuzufciobmzjfcaujpet.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1enVmY2lvYm16amZjYXVqcGV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3OTg3ODAsImV4cCI6MjA4NTM3NDc4MH0.Md56UoBCOUjOTu5qEvJsMYG0TZvgAFmWU6jPgTgTAn4"; // replace with your key
 
 let supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const session_id = crypto.randomUUID();
 const sliders = ["comfort", "vulnerability", "punctuality"];
-const SENSITIVITY = 0.03; // sensitivity for slower slider movement
+const SENSITIVITY = 0.01; // very slow, precise movement
 
-// Update the bubble above the thumb
+// Update bubble above slider
 function updateDisplay(id){
   const slider = document.getElementById(id);
   const bubble = document.getElementById(id+"_value");
@@ -19,26 +19,25 @@ function updateDisplay(id){
   bubble.style.left = percent + "%";
 }
 
-// Adjust scale dynamically
+// Expand slider range dynamically
 function expandRange(slider){
   let value = parseFloat(slider.value);
   let min = parseFloat(slider.min);
   let max = parseFloat(slider.max);
-  const threshold = 5; // distance from edge
+  const threshold = 5;
 
-  // slowly expand beyond max
   if(value >= max - threshold){
-    max += 5; // small increment
+    max += 5;
   }
-  // slowly expand below min
   if(value <= min + threshold){
     min -= 5;
   }
+
   slider.min = min;
   slider.max = max;
 }
 
-// Adjust with + / - buttons
+// + / - button adjustment
 function adjust(id, step){
   const slider = document.getElementById(id);
   slider.value = parseFloat(slider.value) + step;
@@ -47,35 +46,43 @@ function adjust(id, step){
   logResponse();
 }
 
-// Initialize sliders
+// Initialize sliders with drag support
 sliders.forEach(id=>{
   const slider = document.getElementById(id);
   slider.step = 1;
 
-  // mouse / touch drag with slower sensitivity
-  let lastX = null;
+  // drag logic
+  let dragging = false;
+  let startX = 0;
+  let startValue = 0;
+
   slider.addEventListener("mousedown", startDrag);
   slider.addEventListener("touchstart", startDrag);
 
   function startDrag(e){
     e.preventDefault();
-    lastX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
+    dragging = true;
+    startX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
+    startValue = parseFloat(slider.value);
 
     function moveHandler(ev){
       const currentX = ev.type.includes("touch") ? ev.touches[0].clientX : ev.clientX;
-      let dx = currentX - lastX;
-      slider.value = parseFloat(slider.value) + dx * SENSITIVITY;
+      const dx = currentX - startX;
+
+      // Apply slow sensitivity
+      const newValue = startValue + dx * SENSITIVITY;
+      slider.value = newValue;
       expandRange(slider);
       updateDisplay(id);
-      lastX = currentX;
-      logResponse();
     }
 
     function stopHandler(){
+      dragging = false;
       document.removeEventListener("mousemove", moveHandler);
       document.removeEventListener("touchmove", moveHandler);
       document.removeEventListener("mouseup", stopHandler);
       document.removeEventListener("touchend", stopHandler);
+      logResponse();
     }
 
     document.addEventListener("mousemove", moveHandler);
@@ -84,7 +91,6 @@ sliders.forEach(id=>{
     document.addEventListener("touchend", stopHandler);
   }
 
-  // Also update bubble for normal input events
   slider.addEventListener("input", ()=>{
     expandRange(slider);
     updateDisplay(id);
@@ -94,7 +100,7 @@ sliders.forEach(id=>{
   updateDisplay(id);
 });
 
-// Send data to Supabase
+// Log to Supabase
 async function logResponse(){
   const data = {
     session_id: session_id,
