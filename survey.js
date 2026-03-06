@@ -1,12 +1,10 @@
 const SUPABASE_URL = "https://zuzufciobmzjfcaujpet.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1enVmY2lvYm16amZjYXVqcGV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3OTg3ODAsImV4cCI6MjA4NTM3NDc4MH0.Md56UoBCOUjOTu5qEvJsMYG0TZvgAFmWU6jPgTgTAn4"; // replace with your key
-
 let supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const session_id = crypto.randomUUID();
 const sliders = ["comfort", "vulnerability", "punctuality"];
 
-// Update bubble above slider
 function updateDisplay(id){
   const slider = document.getElementById(id);
   const bubble = document.getElementById(id+"_value");
@@ -18,25 +16,19 @@ function updateDisplay(id){
   bubble.style.left = percent + "%";
 }
 
-// Expand slider range dynamically
 function expandRange(slider){
   let value = parseFloat(slider.value);
   let min = parseFloat(slider.min);
   let max = parseFloat(slider.max);
   const threshold = 5;
 
-  if(value >= max - threshold){
-    max += 5;
-  }
-  if(value <= min + threshold){
-    min -= 5;
-  }
+  if(value >= max - threshold){ max += 5; }
+  if(value <= min + threshold){ min -= 5; }
 
   slider.min = min;
   slider.max = max;
 }
 
-// + / - button adjustment
 function adjust(id, step){
   const slider = document.getElementById(id);
   slider.value = parseFloat(slider.value) + step;
@@ -45,8 +37,8 @@ function adjust(id, step){
   logResponse();
 }
 
-// Initialize sliders with adaptive drag
-sliders.forEach(id=>{
+// Initialize sliders
+sliders.forEach(id => {
   const slider = document.getElementById(id);
   slider.step = 1;
 
@@ -67,13 +59,13 @@ sliders.forEach(id=>{
       const currentX = ev.type.includes("touch") ? ev.touches[0].clientX : ev.clientX;
       let dx = currentX - startX;
 
-      let newValue = startValue + dx;
+      let newValue = startValue + dx; // normal 1:1 movement
 
-      // Apply slower change only beyond edges
+      // Gradual slowdown beyond edges
       if(newValue > 100){
-        newValue = startValue + dx * 0.1; // 10% of drag beyond 100
+        newValue = startValue + dx * 0.15; // 15% speed beyond 100
       } else if(newValue < 0){
-        newValue = startValue + dx * 0.1; // 10% of drag below 0
+        newValue = startValue + dx * 0.15; // 15% speed below 0
       }
 
       slider.value = newValue;
@@ -105,7 +97,6 @@ sliders.forEach(id=>{
   updateDisplay(id);
 });
 
-// Log to Supabase
 async function logResponse(){
   const data = {
     session_id: session_id,
