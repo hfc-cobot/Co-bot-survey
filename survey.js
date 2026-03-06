@@ -7,6 +7,8 @@ const session_id=crypto.randomUUID();
 
 const sliders=["comfort","vulnerability","punctuality"];
 
+const sensitivity=0.2; // 5x slower movement
+
 
 
 function updateDisplay(id){
@@ -16,61 +18,10 @@ const bubble=document.getElementById(id+"_value");
 
 const value=parseFloat(slider.dataset.realValue);
 
-const min=parseFloat(slider.min);
-const max=parseFloat(slider.max);
-
-const percent=(slider.value-min)/(max-min)*100;
+const percent=slider.value;
 
 bubble.innerText=Math.round(value);
 bubble.style.left=percent+"%";
-
-}
-
-
-
-function updateMarkers(id){
-
-const slider=document.getElementById(id);
-
-const zero=document.getElementById(id+"_zero");
-const hundred=document.getElementById(id+"_hundred");
-
-const min=parseFloat(slider.min);
-const max=parseFloat(slider.max);
-
-const zeroPercent=(0-min)/(max-min)*100;
-const hundredPercent=(100-min)/(max-min)*100;
-
-zero.style.left=zeroPercent+"%";
-hundred.style.left=hundredPercent+"%";
-
-}
-
-
-
-function scaleValue(x){
-
-if(x<=100) return x;
-
-if(x<=300) return 100+(x-100)*0.5;
-
-if(x<=1000) return 200+(x-300)*0.25;
-
-return 375+(x-1000)*0.1;
-
-}
-
-
-
-function inverseScaleValue(y){
-
-if(y<=100) return y;
-
-if(y<=200) return 100+(y-100)/0.5;
-
-if(y<=375) return 300+(y-200)/0.25;
-
-return 1000+(y-375)/0.1;
 
 }
 
@@ -80,16 +31,13 @@ function adjust(id,step){
 
 const slider=document.getElementById(id);
 
-let real=parseFloat(slider.dataset.realValue||50);
+let value=parseFloat(slider.dataset.realValue);
 
-real+=step;
+value+=step;
 
-slider.dataset.realValue=real;
-
-slider.value=scaleValue(real);
+slider.dataset.realValue=value;
 
 updateDisplay(id);
-updateMarkers(id);
 
 logResponse();
 
@@ -101,27 +49,40 @@ sliders.forEach(id=>{
 
 const slider=document.getElementById(id);
 
-slider.step=0.1;
+slider.min=0;
+slider.max=100;
+slider.value=50;
 
-slider.dataset.realValue=slider.value;
+slider.dataset.realValue=50;
+
+let last=50;
 
 slider.addEventListener("input",()=>{
 
-let scaled=parseFloat(slider.value);
+let current=parseFloat(slider.value);
 
-let real=inverseScaleValue(scaled);
+let movement=current-last;
+
+/* slow sensitivity */
+
+let real=parseFloat(slider.dataset.realValue);
+
+real+=movement*20*sensitivity;
 
 slider.dataset.realValue=real;
 
+/* keep thumb centered */
+
+slider.value=50;
+last=50;
+
 updateDisplay(id);
-updateMarkers(id);
 
 logResponse();
 
 });
 
 updateDisplay(id);
-updateMarkers(id);
 
 });
 
@@ -149,9 +110,7 @@ const {error}=await supa
 .insert(data);
 
 if(error){
-
 console.error("Supabase insert error:",error);
-
 }
 
 }
