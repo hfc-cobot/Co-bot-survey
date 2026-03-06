@@ -1,10 +1,9 @@
 const SUPABASE_URL = "https://zuzufciobmzjfcaujpet.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1enVmY2lvYm16amZjYXVqcGV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3OTg3ODAsImV4cCI6MjA4NTM3NDc4MH0.Md56UoBCOUjOTu5qEvJsMYG0TZvgAFmWU6jPgTgTAn4"; // replace with your key
+const SUPABASE_KEY = "YOUR_SUPABASE_KEY"; // replace with your key
 let supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const session_id = crypto.randomUUID();
 const sliders = ["comfort", "vulnerability", "punctuality"];
-const EDGE_SENSITIVITY = 0.05; // slower movement beyond 100
 
 function updateDisplay(id){
   const slider = document.getElementById(id);
@@ -44,14 +43,7 @@ sliders.forEach(id => {
   slider.step = 1;
 
   slider.addEventListener("input", ()=>{
-    const value = parseFloat(slider.value);
-
-    // Only slow movement beyond 100
-    if(value > 100){
-      const delta = value - 100;
-      slider.value = 100 + delta * EDGE_SENSITIVITY;
-    }
-
+    // Remove any slowdown, allow free drag beyond 100 or below 0
     expandRange(slider);
     updateDisplay(id);
     logResponse();
