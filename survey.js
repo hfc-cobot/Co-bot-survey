@@ -16,6 +16,7 @@ function updateDisplay(id){
   bubble.style.left = percent + "%";
 }
 
+// Allow dynamic expansion beyond 0-100 internally without changing visual scale
 function expandRange(slider){
   let value = parseFloat(slider.value);
   let min = parseFloat(slider.min);
@@ -43,9 +44,9 @@ sliders.forEach(id => {
   slider.step = 1;
 
   slider.addEventListener("input", ()=>{
-    expandRange(slider);       // allow free dragging beyond 0-100
-    updateDisplay(id);         // update bubble
-    logResponse();             // send to Supabase
+    expandRange(slider);       // allow free drag beyond 0-100 internally
+    updateDisplay(id);         // bubble follows thumb
+    logResponse();             // log to Supabase
   });
 
   updateDisplay(id);
