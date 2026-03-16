@@ -1,78 +1,124 @@
-const SUPABASE_URL = "https://zuzufciobmzjfcaujpet.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1enVmY2lvYm16amZjYXVqcGV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3OTg3ODAsImV4cCI6MjA4NTM3NDc4MH0.Md56UoBCOUjOTu5qEvJsMYG0TZvgAFmWU6jPgTgTAn4"; // replace with your key
-let supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const session_id = crypto.randomUUID();
+const SUPABASE_URL="https://zuzufciobmzjfcaujpet.supabase.co"
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1enVmY2lvYm16amZjYXVqcGV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3OTg3ODAsImV4cCI6MjA4NTM3NDc4MH0.Md56UoBCOUjOTu5qEvJsMYG0TZvgAFmWU6jPgTgTAn4"
 
-const sliders = {
-  comfort: {value:50, track: 'comfort_track', thumb: 'comfort_thumb', bubble: 'comfort_bubble'},
-  vulnerability: {value:50, track: 'vulnerability_track', thumb: 'vulnerability_thumb', bubble: 'vulnerability_bubble'},
-  punctuality: {value:50, track: 'punctuality_track', thumb: 'punctuality_thumb', bubble: 'punctuality_bubble'}
-};
+const supa = supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 
-const EDGE_SENSITIVITY = 0.05; // slower movement beyond edges
+const session_id = crypto.randomUUID()
+
+
+const sliders={
+comfort:{value:50},
+vulnerability:{value:50},
+punctuality:{value:50}
+}
+
 
 function updateSlider(id){
-  const s = sliders[id];
-  const thumb = document.getElementById(s.thumb);
-  const bubble = document.getElementById(s.bubble);
 
-  const percent = Math.min(Math.max((s.value/100)*100,0),100);
-  thumb.style.left = percent + '%';
-  bubble.style.left = percent + '%';
-  bubble.innerText = Math.round(s.value);
+const s=sliders[id]
+
+const track=document.getElementById(id+"_track")
+const thumb=document.getElementById(id+"_thumb")
+const bubble=document.getElementById(id+"_bubble")
+const fill=document.getElementById(id+"_fill")
+
+let percent=s.value
+
+thumb.style.left=percent+"%"
+bubble.style.left=percent+"%"
+fill.style.width=percent+"%"
+
+bubble.innerText=Math.round(s.value)
+
 }
 
-function adjust(id, step){
-  sliders[id].value += step;
-  updateSlider(id);
-  logResponse();
+
+function adjust(id,step){
+
+let s=sliders[id]
+
+s.value+=step
+
+if(s.value<0)s.value=0
+if(s.value>100)s.value=100
+
+updateSlider(id)
+logResponse()
+
 }
 
-// Drag handling
+
+function setupDrag(id){
+
+const track=document.getElementById(id+"_track")
+const thumb=document.getElementById(id+"_thumb")
+
+let dragging=false
+
+
+function move(clientX){
+
+const rect=track.getBoundingClientRect()
+
+let percent=(clientX-rect.left)/rect.width*100
+
+percent=Math.max(0,Math.min(100,percent))
+
+sliders[id].value=percent
+
+updateSlider(id)
+
+}
+
+
+thumb.addEventListener("mousedown",()=>dragging=true)
+
+document.addEventListener("mouseup",()=>{
+if(dragging){
+dragging=false
+logResponse()
+}
+})
+
+document.addEventListener("mousemove",(e)=>{
+if(dragging)move(e.clientX)
+})
+
+
+thumb.addEventListener("touchstart",()=>dragging=true)
+
+document.addEventListener("touchend",()=>{
+if(dragging){
+dragging=false
+logResponse()
+}
+})
+
+document.addEventListener("touchmove",(e)=>{
+if(dragging)move(e.touches[0].clientX)
+})
+
+}
+
+
 Object.keys(sliders).forEach(id=>{
-  const s = sliders[id];
-  const thumb = document.getElementById(s.thumb);
-  const track = document.getElementById(s.track);
-  let dragging = false;
+setupDrag(id)
+updateSlider(id)
+})
 
-  const handleMove = (clientX) => {
-    const rect = track.getBoundingClientRect();
-    let x = clientX - rect.left;
-    let percent = x/rect.width;
-    let value = percent*100;
 
-    if(value>100) value = 100 + (value-100)*EDGE_SENSITIVITY;
-    if(value<0) value = 0 + (value*EDGE_SENSITIVITY);
-
-    sliders[id].value = value;
-    updateSlider(id);
-    logResponse();
-  };
-
-  // Mouse events
-  thumb.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
-  document.addEventListener('mouseup', e => dragging=false);
-  document.addEventListener('mousemove', e => { if(dragging) handleMove(e.clientX); });
-
-  // Touch events
-  thumb.addEventListener('touchstart', e => { dragging = true; e.preventDefault(); });
-  document.addEventListener('touchend', e => dragging=false);
-  document.addEventListener('touchmove', e => { if(dragging) handleMove(e.touches[0].clientX); });
-});
-
-// Initial render
-Object.keys(sliders).forEach(id => updateSlider(id));
 
 async function logResponse(){
-  const data = {
-    session_id: session_id,
-    comfort_value: sliders.comfort.value,
-    comfort_id: "comfort",
-    vulnerability_value: sliders.vulnerability.value,
-    vulnerability_id: "vulnerability",
-    punctuality_value: sliders.punctuality.value,
-    punctuality_id: "punctuality"
-  };
-  const { error } = await supa.from("survey_responses").insert(data);
-  if(error) console.error("Supabase insert error:", error);
+
+const data={
+session_id:session_id,
+comfort_value:sliders.comfort.value,
+vulnerability_value:sliders.vulnerability.value,
+punctuality_value:sliders.punctuality.value
+}
+
+const {error}=await supa.from("survey_responses").insert(data)
+
+if(error)console.error(error)
+
 }
