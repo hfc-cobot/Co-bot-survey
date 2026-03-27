@@ -6,8 +6,6 @@ const supa = supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 const session_id = crypto.randomUUID()
 
 const sliders={
-comfort:{value:50},
-vulnerability:{value:50},
 punctuality:{value:50}
 }
 
@@ -24,7 +22,7 @@ const label100=document.getElementById(id+"_label_100")
 
 let value = s.value
 
-// NORMAL POSITION (0–100)
+// keep thumb visually within track
 let percent = Math.max(0, Math.min(100, value))
 
 thumb.style.left = percent + "%"
@@ -33,23 +31,20 @@ fill.style.width = percent + "%"
 
 bubble.innerText = Math.round(value)
 
-// 🔥 KEY LOGIC
+// 🔥 label movement logic (YOUR REQUIREMENT)
 
-// default positions
 let pos0 = 0
 let pos100 = 100
 
 if(value > 100){
-  // move 100 label LEFT
   pos100 = 100 - (value - 100)
 }
 
 if(value < 0){
-  // move 0 label RIGHT
-  pos0 = 0 + Math.abs(value)
+  pos0 = Math.abs(value)
 }
 
-// clamp so it doesn't go outside too far
+// clamp labels inside track
 pos0 = Math.max(0, Math.min(100, pos0))
 pos100 = Math.max(0, Math.min(100, pos100))
 
@@ -61,34 +56,28 @@ label100.style.left = pos100 + "%"
 function adjust(id,step){
 
 let s=sliders[id]
-s.value+=step
+s.value += step
 
 updateSlider(id)
 logResponse()
 
 }
 
+// 🔥 FIXED DRAG (solves ALL 3 issues)
 function setupDrag(id){
 
 const track=document.getElementById(id+"_track")
 const thumb=document.getElementById(id+"_thumb")
 
 let dragging=false
+let startX=0
+let startValue=0
 
-function move(clientX){
-
-const rect=track.getBoundingClientRect()
-
-let percent=(clientX-rect.left)/rect.width*100
-
-// allow unlimited values
-sliders[id].value=percent
-
-updateSlider(id)
-
-}
-
-thumb.addEventListener("mousedown",()=>dragging=true)
+thumb.addEventListener("mousedown",(e)=>{
+dragging=true
+startX = e.clientX
+startValue = sliders[id].value
+})
 
 document.addEventListener("mouseup",()=>{
 if(dragging){
@@ -98,10 +87,25 @@ logResponse()
 })
 
 document.addEventListener("mousemove",(e)=>{
-if(dragging)move(e.clientX)
+if(!dragging) return
+
+const rect=track.getBoundingClientRect()
+
+let deltaX = e.clientX - startX
+let percentMove = deltaX / rect.width * 100
+
+sliders[id].value = startValue + percentMove
+
+updateSlider(id)
 })
 
-thumb.addEventListener("touchstart",()=>dragging=true)
+// TOUCH
+
+thumb.addEventListener("touchstart",(e)=>{
+dragging=true
+startX = e.touches[0].clientX
+startValue = sliders[id].value
+})
 
 document.addEventListener("touchend",()=>{
 if(dragging){
@@ -111,11 +115,21 @@ logResponse()
 })
 
 document.addEventListener("touchmove",(e)=>{
-if(dragging)move(e.touches[0].clientX)
+if(!dragging) return
+
+const rect=track.getBoundingClientRect()
+
+let deltaX = e.touches[0].clientX - startX
+let percentMove = deltaX / rect.width * 100
+
+sliders[id].value = startValue + percentMove
+
+updateSlider(id)
 })
 
 }
 
+// init
 Object.keys(sliders).forEach(id=>{
 setupDrag(id)
 updateSlider(id)
@@ -125,8 +139,6 @@ async function logResponse(){
 
 const data={
 session_id:session_id,
-comfort_value:sliders.comfort.value,
-vulnerability_value:sliders.vulnerability.value,
 punctuality_value:sliders.punctuality.value
 }
 
