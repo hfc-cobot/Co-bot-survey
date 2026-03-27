@@ -19,23 +19,32 @@ const thumb=document.getElementById(id+"_thumb")
 const bubble=document.getElementById(id+"_bubble")
 const fill=document.getElementById(id+"_fill")
 
-let percent=s.value
+const labelLeft=document.getElementById(id+"_label_left")
+const labelRight=document.getElementById(id+"_label_right")
 
-// clamp only for visual position
-let visual=Math.max(0,Math.min(100,percent))
+let value = s.value
 
-thumb.style.left=visual+"%"
-bubble.style.left=visual+"%"
-fill.style.width=visual+"%"
+// 🔥 Dynamic range logic
+let rangeStart = Math.floor(value / 100) * 100
+let rangeEnd = rangeStart + 100
 
-bubble.innerText=Math.round(s.value)
+let percent = ((value - rangeStart) / (rangeEnd - rangeStart)) * 100
+
+thumb.style.left=percent+"%"
+bubble.style.left=percent+"%"
+fill.style.width=percent+"%"
+
+bubble.innerText=Math.round(value)
+
+// 🔥 Update labels dynamically
+labelLeft.innerText = rangeStart
+labelRight.innerText = rangeEnd
 
 }
 
 function adjust(id,step){
 
 let s=sliders[id]
-
 s.value+=step
 
 updateSlider(id)
@@ -54,10 +63,14 @@ function move(clientX){
 
 const rect=track.getBoundingClientRect()
 
-let percent=(clientX-rect.left)/rect.width*100
+let percent=(clientX-rect.left)/rect.width
 
-// allow unlimited values
-sliders[id].value=percent
+let rangeStart = Math.floor(sliders[id].value / 100) * 100
+let rangeEnd = rangeStart + 100
+
+let value = rangeStart + percent * (rangeEnd - rangeStart)
+
+sliders[id].value = value
 
 updateSlider(id)
 
