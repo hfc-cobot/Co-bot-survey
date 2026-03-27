@@ -6,7 +6,9 @@ const supa = supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 const session_id = crypto.randomUUID()
 
 const sliders={
-punctuality:{value:50}
+  comfort:{value:50},
+  vulnerability:{value:50},
+  punctuality:{value:50}
 }
 
 function updateSlider(id){
@@ -22,7 +24,6 @@ const label100=document.getElementById(id+"_label_100")
 
 let value = s.value
 
-// keep thumb visually within track
 let percent = Math.max(0, Math.min(100, value))
 
 thumb.style.left = percent + "%"
@@ -31,8 +32,7 @@ fill.style.width = percent + "%"
 
 bubble.innerText = Math.round(value)
 
-// 🔥 label movement logic (YOUR REQUIREMENT)
-
+// label movement
 let pos0 = 0
 let pos100 = 100
 
@@ -44,7 +44,6 @@ if(value < 0){
   pos0 = Math.abs(value)
 }
 
-// clamp labels inside track
 pos0 = Math.max(0, Math.min(100, pos0))
 pos100 = Math.max(0, Math.min(100, pos100))
 
@@ -55,15 +54,13 @@ label100.style.left = pos100 + "%"
 
 function adjust(id,step){
 
-let s=sliders[id]
-s.value += step
+sliders[id].value += step
 
 updateSlider(id)
 logResponse()
 
 }
 
-// 🔥 FIXED DRAG (solves ALL 3 issues)
 function setupDrag(id){
 
 const track=document.getElementById(id+"_track")
@@ -99,7 +96,7 @@ sliders[id].value = startValue + percentMove
 updateSlider(id)
 })
 
-// TOUCH
+// TOUCH SUPPORT
 
 thumb.addEventListener("touchstart",(e)=>{
 dragging=true
@@ -129,7 +126,7 @@ updateSlider(id)
 
 }
 
-// init
+// init all sliders
 Object.keys(sliders).forEach(id=>{
 setupDrag(id)
 updateSlider(id)
@@ -139,6 +136,8 @@ async function logResponse(){
 
 const data={
 session_id:session_id,
+comfort_value:sliders.comfort.value,
+vulnerability_value:sliders.vulnerability.value,
 punctuality_value:sliders.punctuality.value
 }
 
