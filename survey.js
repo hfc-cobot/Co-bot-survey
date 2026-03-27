@@ -11,6 +11,7 @@ const sliders={
   punctuality:{value:50}
 }
 
+// ✅ update UI
 function updateSlider(id){
 
 const s=sliders[id]
@@ -32,7 +33,7 @@ fill.style.width = percent + "%"
 
 bubble.innerText = Math.round(value)
 
-// label movement
+// label logic
 let pos0 = 0
 let pos100 = 100
 
@@ -52,86 +53,90 @@ label100.style.left = pos100 + "%"
 
 }
 
+// ✅ buttons
 function adjust(id,step){
-
 sliders[id].value += step
-
 updateSlider(id)
 logResponse()
-
 }
 
+// ✅ DRAG FIX (independent per slider)
 function setupDrag(id){
 
 const track=document.getElementById(id+"_track")
 const thumb=document.getElementById(id+"_thumb")
 
-let dragging=false
 let startX=0
 let startValue=0
+let dragging=false
 
 thumb.addEventListener("mousedown",(e)=>{
+e.stopPropagation()
 dragging=true
 startX = e.clientX
 startValue = sliders[id].value
-})
 
-document.addEventListener("mouseup",()=>{
-if(dragging){
-dragging=false
-logResponse()
-}
-})
-
-document.addEventListener("mousemove",(e)=>{
+function onMove(e){
 if(!dragging) return
 
 const rect=track.getBoundingClientRect()
-
 let deltaX = e.clientX - startX
 let percentMove = deltaX / rect.width * 100
 
 sliders[id].value = startValue + percentMove
-
 updateSlider(id)
+}
+
+function onUp(){
+dragging=false
+document.removeEventListener("mousemove",onMove)
+document.removeEventListener("mouseup",onUp)
+logResponse()
+}
+
+document.addEventListener("mousemove",onMove)
+document.addEventListener("mouseup",onUp)
+
 })
 
-// TOUCH SUPPORT
-
+// TOUCH
 thumb.addEventListener("touchstart",(e)=>{
 dragging=true
 startX = e.touches[0].clientX
 startValue = sliders[id].value
-})
 
-document.addEventListener("touchend",()=>{
-if(dragging){
-dragging=false
-logResponse()
-}
-})
-
-document.addEventListener("touchmove",(e)=>{
+function onMove(e){
 if(!dragging) return
 
 const rect=track.getBoundingClientRect()
-
 let deltaX = e.touches[0].clientX - startX
 let percentMove = deltaX / rect.width * 100
 
 sliders[id].value = startValue + percentMove
-
 updateSlider(id)
+}
+
+function onEnd(){
+dragging=false
+document.removeEventListener("touchmove",onMove)
+document.removeEventListener("touchend",onEnd)
+logResponse()
+}
+
+document.addEventListener("touchmove",onMove)
+document.addEventListener("touchend",onEnd)
+
 })
 
 }
 
-// init all sliders
+// init
 Object.keys(sliders).forEach(id=>{
 setupDrag(id)
 updateSlider(id)
 })
 
+// DB
 async function logResponse(){
 
 const data={
