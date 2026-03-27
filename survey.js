@@ -19,26 +19,42 @@ const thumb=document.getElementById(id+"_thumb")
 const bubble=document.getElementById(id+"_bubble")
 const fill=document.getElementById(id+"_fill")
 
-const labelLeft=document.getElementById(id+"_label_left")
-const labelRight=document.getElementById(id+"_label_right")
+const label0=document.getElementById(id+"_label_0")
+const label100=document.getElementById(id+"_label_100")
 
 let value = s.value
 
-// 🔥 Dynamic range logic
-let rangeStart = Math.floor(value / 100) * 100
-let rangeEnd = rangeStart + 100
+// NORMAL POSITION (0–100)
+let percent = Math.max(0, Math.min(100, value))
 
-let percent = ((value - rangeStart) / (rangeEnd - rangeStart)) * 100
+thumb.style.left = percent + "%"
+bubble.style.left = percent + "%"
+fill.style.width = percent + "%"
 
-thumb.style.left=percent+"%"
-bubble.style.left=percent+"%"
-fill.style.width=percent+"%"
+bubble.innerText = Math.round(value)
 
-bubble.innerText=Math.round(value)
+// 🔥 KEY LOGIC
 
-// 🔥 Update labels dynamically
-labelLeft.innerText = rangeStart
-labelRight.innerText = rangeEnd
+// default positions
+let pos0 = 0
+let pos100 = 100
+
+if(value > 100){
+  // move 100 label LEFT
+  pos100 = 100 - (value - 100)
+}
+
+if(value < 0){
+  // move 0 label RIGHT
+  pos0 = 0 + Math.abs(value)
+}
+
+// clamp so it doesn't go outside too far
+pos0 = Math.max(0, Math.min(100, pos0))
+pos100 = Math.max(0, Math.min(100, pos100))
+
+label0.style.left = pos0 + "%"
+label100.style.left = pos100 + "%"
 
 }
 
@@ -63,14 +79,10 @@ function move(clientX){
 
 const rect=track.getBoundingClientRect()
 
-let percent=(clientX-rect.left)/rect.width
+let percent=(clientX-rect.left)/rect.width*100
 
-let rangeStart = Math.floor(sliders[id].value / 100) * 100
-let rangeEnd = rangeStart + 100
-
-let value = rangeStart + percent * (rangeEnd - rangeStart)
-
-sliders[id].value = value
+// allow unlimited values
+sliders[id].value=percent
 
 updateSlider(id)
 
