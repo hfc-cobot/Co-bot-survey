@@ -6,12 +6,11 @@ const supa = supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 const session_id = crypto.randomUUID()
 
 const sliders={
-  comfort:{value:50},
-  vulnerability:{value:50},
-  punctuality:{value:50}
+  task:{value:50},
+  vulnerability:{value:50}
 }
 
-// ✅ update UI
+// update UI
 function updateSlider(id){
 
 const s=sliders[id]
@@ -53,14 +52,14 @@ label100.style.left = pos100 + "%"
 
 }
 
-// ✅ buttons
+// buttons
 function adjust(id,step){
 sliders[id].value += step
 updateSlider(id)
 logResponse()
 }
 
-// ✅ DRAG FIX (independent per slider)
+// DRAG
 function setupDrag(id){
 
 const track=document.getElementById(id+"_track")
@@ -141,9 +140,8 @@ async function logResponse(){
 
 const data={
 session_id:session_id,
-comfort_value:sliders.comfort.value,
-vulnerability_value:sliders.vulnerability.value,
-punctuality_value:sliders.punctuality.value
+task_value:sliders.task.value,
+vulnerability_value:sliders.vulnerability.value
 }
 
 const {error}=await supa.from("survey_responses").insert(data)
