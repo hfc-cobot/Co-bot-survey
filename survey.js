@@ -145,7 +145,7 @@ task_value:sliders.task.value,
 vulnerability_value:sliders.vulnerability.value
 }
 
-const {error}=await supa.from("trust-survey").insert(data)
+const {error}=await supa.from("trust_survey").insert(data)
 
 if(error)console.error(error)
 
