@@ -1,6 +1,6 @@
 // added new supbase keys
 const SUPABASE_URL="https://rrgrghlvdtailyxiwjti.supabase.co"
-const SUPABASE_KEY="sb_publishable_HtFop6-6Wz8nVH40ngA3Ag_KSxYX73C"
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZ3JnaGx2ZHRhaWx5eGl3anRpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjI2NzU5MSwiZXhwIjoyMDkxODQzNTkxfQ.h0UmleNYsI7i-FVE471qmxcwwqfrsXFR1XqHPiZoHmc"
 
 const supa = supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 
