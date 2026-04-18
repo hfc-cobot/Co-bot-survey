@@ -1,3 +1,4 @@
+// added new supbase keys
 const SUPABASE_URL="https://rrgrghlvdtailyxiwjti.supabase.co"
 const SUPABASE_KEY="sb_publishable_HtFop6-6Wz8nVH40ngA3Ag_KSxYX73C"
 
