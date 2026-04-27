@@ -10,143 +10,145 @@ const sliders={
   task:{value:50},
   vulnerability:{value:50}
 }
-
-// update UI
+// =======================
+// UPDATE UI (DYNAMIC SCALE + SPACING FIX)
+// =======================
 function updateSlider(id){
 
-const s=sliders[id]
+  const s = sliders[id]
 
-const thumb=document.getElementById(id+"_thumb")
-const bubble=document.getElementById(id+"_bubble")
-const fill=document.getElementById(id+"_fill")
+  const thumb = document.getElementById(id+"_thumb")
+  const bubble = document.getElementById(id+"_bubble")
+  const fill = document.getElementById(id+"_fill")
 
-const label0=document.getElementById(id+"_label_0")
-const label100=document.getElementById(id+"_label_100")
+  const topLabel = document.getElementById(id+"_top")
+  const bottomLabel = document.getElementById(id+"_bottom")
 
-let value = s.value
+  let value = s.value
 
-let percent = Math.max(0, Math.min(100, value))
+  // ✅ Dynamic range
+  let min = Math.min(0, value)
+  let max = Math.max(100, value)
+  let range = max - min
 
-thumb.style.left = percent + "%"
-bubble.style.left = percent + "%"
-fill.style.width = percent + "%"
+  let percent = ((value - min) / range) * 100
 
-bubble.innerText = Math.round(value)
+  // Slider UI
+  thumb.style.bottom = percent + "%"
+  fill.style.height = percent + "%"
+  bubble.style.bottom = percent + "%"
+  bubble.innerText = Math.round(value)
 
-// label logic
-let pos0 = 0
-let pos100 = 100
+  // Label positions
+  let topPercent = ((100 - min) / range) * 100
+  let bottomPercent = ((0 - min) / range) * 100
 
-if(value > 100){
-  pos100 = 100 - (value - 100)
+  // ✅ spacing fix so labels don’t touch buttons
+  const OFFSET = 12
+
+  topLabel.style.bottom = `calc(${topPercent}% - ${OFFSET}px)`
+  bottomLabel.style.bottom = `calc(${bottomPercent}% + ${OFFSET}px)`
+
+  topLabel.innerText = 100
+  bottomLabel.innerText = 0
 }
 
-if(value < 0){
-  pos0 = Math.abs(value)
-}
+// =======================
+// BUTTON CONTROLS
+// =======================
+let saveTimeout
 
-pos0 = Math.max(0, Math.min(100, pos0))
-pos100 = Math.max(0, Math.min(100, pos100))
-
-label0.style.left = pos0 + "%"
-label100.style.left = pos100 + "%"
-
-}
-
-// buttons
 function adjust(id,step){
-sliders[id].value += step
-updateSlider(id)
-logResponse()
+  sliders[id].value += step
+  updateSlider(id)
+
+  clearTimeout(saveTimeout)
+  saveTimeout = setTimeout(()=>{
+    logResponse()
+  }, 600)
 }
 
-// DRAG
+// =======================
+// DRAG FUNCTIONALITY
+// =======================
 function setupDrag(id){
 
-const track=document.getElementById(id+"_track")
-const thumb=document.getElementById(id+"_thumb")
+  const track=document.getElementById(id+"_track")
+  const thumb=document.getElementById(id+"_thumb")
 
-let startX=0
-let startValue=0
-let dragging=false
+  let dragging=false
+  let startY=0
+  let startValue=0
 
-thumb.addEventListener("mousedown",(e)=>{
-e.stopPropagation()
-dragging=true
-startX = e.clientX
-startValue = sliders[id].value
+  function move(clientY){
+    const rect = track.getBoundingClientRect()
 
-function onMove(e){
-if(!dragging) return
+    let deltaY = startY - clientY
+    let percentMove = deltaY / rect.height * 100
 
-const rect=track.getBoundingClientRect()
-let deltaX = e.clientX - startX
-let percentMove = deltaX / rect.width * 100
+    let min = Math.min(0, startValue)
+    let max = Math.max(100, startValue)
+    let range = max - min
 
-sliders[id].value = startValue + percentMove
-updateSlider(id)
+    sliders[id].value = startValue + (percentMove / 100) * range
+
+    updateSlider(id)
+  }
+
+  thumb.addEventListener("pointerdown",(e)=>{
+    dragging = true
+    startY = e.clientY
+    startValue = sliders[id].value
+    thumb.setPointerCapture(e.pointerId)
+  })
+
+  thumb.addEventListener("pointermove",(e)=>{
+    if(!dragging) return
+    move(e.clientY)
+  })
+
+  thumb.addEventListener("pointerup",(e)=>{
+    if(!dragging) return
+
+    dragging = false
+    thumb.releasePointerCapture(e.pointerId)
+
+    logResponse()
+  })
+
+  thumb.addEventListener("pointercancel",()=>{
+    dragging=false
+  })
 }
 
-function onUp(){
-dragging=false
-document.removeEventListener("mousemove",onMove)
-document.removeEventListener("mouseup",onUp)
-logResponse()
-}
-
-document.addEventListener("mousemove",onMove)
-document.addEventListener("mouseup",onUp)
-
-})
-
-// TOUCH
-thumb.addEventListener("touchstart",(e)=>{
-dragging=true
-startX = e.touches[0].clientX
-startValue = sliders[id].value
-
-function onMove(e){
-if(!dragging) return
-
-const rect=track.getBoundingClientRect()
-let deltaX = e.touches[0].clientX - startX
-let percentMove = deltaX / rect.width * 100
-
-sliders[id].value = startValue + percentMove
-updateSlider(id)
-}
-
-function onEnd(){
-dragging=false
-document.removeEventListener("touchmove",onMove)
-document.removeEventListener("touchend",onEnd)
-logResponse()
-}
-
-document.addEventListener("touchmove",onMove)
-document.addEventListener("touchend",onEnd)
-
-})
-
-}
-
-// init
+// =======================
+// INIT
+// =======================
 Object.keys(sliders).forEach(id=>{
-setupDrag(id)
-updateSlider(id)
+  setupDrag(id)
+  updateSlider(id)
 })
 
-// DB
+// =======================
+// DATABASE SAVE
+// =======================
 async function logResponse(){
 
-const data={
-session_id:session_id,
-task_value:sliders.task.value,
-vulnerability_value:sliders.vulnerability.value
-}
+  const data = {
+    session_id: session_id,
+    task_value: Math.round(sliders.task.value),
+    safety_value: Math.round(sliders.safety.value)
+  }
 
-const {error}=await supa.from("trust_survey").insert(data)
+  console.log("Saving:", data)
 
-if(error)console.error(error)
+  const {error}=await supa
+    .from("trust_survey")
+    .insert(data)
 
+  if(error){
+    console.error("Supabase ERROR:", error)
+  } else {
+    console.log("Saved successfully")
+  }
 }

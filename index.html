@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -7,12 +7,25 @@
 <style>
 body{
   font-family: Arial, sans-serif;
-  max-width: 800px;
-  margin:40px auto;
+  max-width: 1000px;
+  margin:0 auto;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.survey-row{
+  display:flex;
+  justify-content:space-around;
+  align-items:flex-start;
+  gap:80px;
 }
 
 .question{
-  margin-bottom:60px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 }
 
 .question p{
@@ -22,8 +35,9 @@ body{
 
 .scale-container{
   display:flex;
+  flex-direction:column;
   align-items:center;
-  gap:12px;
+  gap:10px;
 }
 
 .button{
@@ -35,23 +49,26 @@ body{
 
 .slider-track{
   position:relative;
-  flex:1;
-  height:8px;
+  width:10px;
+  height:60vh;
+  min-height:300px;
+  max-height:600px;
   background:#ddd;
   border-radius:6px;
 }
 
 .slider-fill{
   position:absolute;
-  height:100%;
+  bottom:0;
+  width:100%;
   background:#1e73be;
   border-radius:6px;
 }
 
 .slider-thumb{
   position:absolute;
-  top:50%;
-  transform:translate(-50%, -50%);
+  left:50%;
+  transform:translate(-50%, 50%);
   width:22px;
   height:22px;
   background:#1e73be;
@@ -61,8 +78,8 @@ body{
 
 .value-bubble{
   position:absolute;
-  top:-34px;
-  transform:translateX(-50%);
+  left:40px;
+  transform:translateY(50%);
   background:#1e73be;
   color:white;
   padding:4px 8px;
@@ -73,10 +90,16 @@ body{
 
 .label{
   position:absolute;
-  top:14px;
-  transform:translateX(-50%);
+  left:20px;
   font-size:12px;
   color:#555;
+}
+
+@media (max-width:700px){
+  .survey-row{
+    flex-direction:column;
+    align-items:center;
+  }
 }
 </style>
 </head>
@@ -85,40 +108,44 @@ body{
 
 <h2>Vehicle Experience Survey</h2>
 
-<!-- TASK -->
-<div class="question">
-<p>Task Fulfillment</p>
-<div class="scale-container">
-<button class="button" onclick="adjust('task',-1)">−</button>
+<div class="survey-row">
 
-<div class="slider-track" id="task_track">
-<div class="slider-fill" id="task_fill"></div>
-<div class="slider-thumb" id="task_thumb"></div>
-<div class="value-bubble" id="task_bubble"></div>
-<div class="label" id="task_label_0">0</div>
-<div class="label" id="task_label_100">100</div>
-</div>
+  <div class="question">
+    <p>Task Fulfillment</p>
 
-<button class="button" onclick="adjust('task',1)">+</button>
-</div>
-</div>
+    <div class="scale-container">
+      <button class="button" onclick="adjust('task',1)">+</button>
 
-<!-- VULNERABILITY -->
-<div class="question">
-<p>Vulnerability</p>
-<div class="scale-container">
-<button class="button" onclick="adjust('vulnerability',-1)">−</button>
+      <div class="slider-track" id="task_track">
+        <div class="slider-fill" id="task_fill"></div>
+        <div class="slider-thumb" id="task_thumb"></div>
+        <div class="value-bubble" id="task_bubble"></div>
+        <div class="label" id="task_top">100</div>
+        <div class="label" id="task_bottom">0</div>
+      </div>
 
-<div class="slider-track" id="vulnerability_track">
-<div class="slider-fill" id="vulnerability_fill"></div>
-<div class="slider-thumb" id="vulnerability_thumb"></div>
-<div class="value-bubble" id="vulnerability_bubble"></div>
-<div class="label" id="vulnerability_label_0">0</div>
-<div class="label" id="vulnerability_label_100">100</div>
-</div>
+      <button class="button" onclick="adjust('task',-1)">−</button>
+    </div>
+  </div>
 
-<button class="button" onclick="adjust('vulnerability',1)">+</button>
-</div>
+  <div class="question">
+    <p>Safety</p>
+
+    <div class="scale-container">
+      <button class="button" onclick="adjust('safety',1)">+</button>
+
+      <div class="slider-track" id="safety_track">
+        <div class="slider-fill" id="safety_fill"></div>
+        <div class="slider-thumb" id="safety_thumb"></div>
+        <div class="value-bubble" id="safety_bubble"></div>
+        <div class="label" id="safety_top">100</div>
+        <div class="label" id="safety_bottom">0</div>
+      </div>
+
+      <button class="button" onclick="adjust('safety',-1)">−</button>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
